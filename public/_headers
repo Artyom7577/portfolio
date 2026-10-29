@@ -8,3 +8,7 @@
 # Vite puts a content hash in every file name under /assets, so a file never changes once published.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Font files keep fixed names, so cache for 30 days rather than forever.
+/fonts/*
+  Cache-Control: public, max-age=2592000
