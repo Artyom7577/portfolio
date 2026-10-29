@@ -15,7 +15,7 @@ systems and high-volume data platforms. It's styled as a retro football game: yo
 | **Highlights** | Featured projects, each with stats, tech stack and repo links |
 | **Academy** | Education: Yerevan State University (Master's and Bachelor's), Picsart Academy |
 | **Trophy Cabinet** | Certificates with verification links, plus certifications in progress |
-| **Friendlies** | Contact links: email, GitHub, GitLab, LinkedIn, LeetCode and a downloadable CV |
+| **Friendlies** | Contact links: email, GitLab, LinkedIn, LeetCode, GitHub and a downloadable CV |
 
 ## Controls
 

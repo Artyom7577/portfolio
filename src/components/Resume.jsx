@@ -154,10 +154,10 @@ export default function Resume({ onPlay }) {
           <SectionHead title="FRIENDLIES" sub="ARRANGE A MATCH" />
           <div className="btnrow">
             <a className="btn primary" href={`mailto:${profile.email}`}>EMAIL ME</a>
-            <a className="btn" href={profile.github} {...ext}>GITHUB</a>
-            <a className="btn" href={profile.linkedin} {...ext}>LINKEDIN</a>
             <a className="btn" href={profile.gitlab} {...ext}>GITLAB</a>
+            <a className="btn" href={profile.linkedin} {...ext}>LINKEDIN</a>
             <a className="btn" href={profile.leetcode} {...ext}>LEETCODE</a>
+            <a className="btn" href={profile.github} {...ext}>GITHUB</a>
             {profile.resumePdf && <a className="btn" href={profile.resumePdf} download>MATCH PROGRAM (PDF)</a>}
           </div>
         </section>
