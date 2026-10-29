@@ -6,8 +6,10 @@
   --safe-r: env(safe-area-inset-right, 0px);
   --hud-h: 56px;
   --pad-h: 0px;
+  /* Night stadium: floodlight glow behind the pitch. Swap for a flat color (e.g. var(--night)) if preferred. */
+  --match-bg: radial-gradient(ellipse 90% 60% at 50% 45%, #2A3A8C 0%, #141452 45%, #07071F 100%);
   position: fixed; inset: 0; z-index: 150; height: 100dvh; overflow: hidden;
-  background: var(--night);
+  background: var(--match-bg);
   /* Stop scrolling, pull-to-refresh, double-tap zoom and text selection while playing. */
   touch-action: none; overscroll-behavior: none;
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
@@ -111,10 +113,10 @@
   .matchquit { top: calc(8px + var(--safe-t)); padding: 8px 10px; }
 }
 
-/* Portrait phones: pitch sits just under the HUD, with a hint to rotate. */
+/* Portrait phones: pitch centered between the HUD and the controls, with a hint to rotate. */
 .rotatehint { display: none; }
 @media (orientation: portrait) and (max-width: 700px) {
-  .match.touch .stage { align-items: flex-start; left: var(--safe-l); right: var(--safe-r); }
+  .match.touch .stage { left: var(--safe-l); right: var(--safe-r); }
   .matchcanvas { height: auto; }
   .match.touch .rotatehint {
     display: block; position: absolute; left: 0; right: 0; text-align: center;
