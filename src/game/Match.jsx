@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createMatch, step, W, H, MATCH_SECONDS, DIFFICULTIES } from './engine'
 import { draw } from './render'
+import * as sound from './sound'
 import { match as text } from '../content/portfolio'
 
 const MOVE_KEYS = {
@@ -28,6 +29,7 @@ export default function Match({ level, onExit }) {
   exitRef.current = onExit
   const [hud, setHud] = useState({ score: '0-0', minute: 0, phase: 'kickoff' })
   const [touch, setTouch] = useState(isTouch)
+  const [muted, setMuted] = useState(sound.isMuted)
 
   if (!stateRef.current) stateRef.current = createMatch(level)
 
@@ -35,7 +37,9 @@ export default function Match({ level, onExit }) {
   useEffect(() => {
     const inp = input.current
     function down(e) {
+      sound.unlock()
       if (e.code === 'Escape') return exitRef.current('menu')
+      if (e.code === 'KeyM') return toggleSound()
       const known = MOVE_KEYS[e.code] || SHOOT_KEYS.includes(e.code) || PASS_KEYS.includes(e.code)
       if (!known) return
       e.preventDefault()
@@ -54,6 +58,17 @@ export default function Match({ level, onExit }) {
       window.removeEventListener('keydown', down)
       window.removeEventListener('keyup', up)
       window.removeEventListener('blur', blur)
+    }
+  }, [])
+
+  // Crowd murmur for the whole match; also retry unlocking audio on the first touch.
+  useEffect(() => {
+    sound.unlock()
+    sound.startCrowd()
+    window.addEventListener('pointerdown', sound.unlock)
+    return () => {
+      window.removeEventListener('pointerdown', sound.unlock)
+      sound.stopCrowd()
     }
   }, [])
 
@@ -93,6 +108,8 @@ export default function Match({ level, onExit }) {
       step(s, dt, { x, y, shoot: inp.shoot, pass: inp.pass })
       inp.shoot = false
       inp.pass = false
+      for (const e of s.events) sound.play(e)
+      s.events.length = 0
       if (!wasOver) draw(ctx, s) // the final frame stays on screen under the result panel
 
       const h = hudOf(s)
@@ -103,6 +120,12 @@ export default function Match({ level, onExit }) {
     raf = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(raf)
   }, [])
+
+  function toggleSound() {
+    const next = !sound.isMuted()
+    sound.setMuted(next)
+    setMuted(next)
+  }
 
   function rematch() {
     stateRef.current = createMatch(level)
@@ -119,6 +142,17 @@ export default function Match({ level, onExit }) {
       </div>
 
       <button className="matchquit px" onClick={() => onExit('menu')}>« MENU</button>
+      <button
+        className="matchsound px"
+        onClick={(e) => {
+          e.currentTarget.blur() // so Space (shoot) doesn't re-trigger the button
+          toggleSound()
+        }}
+        aria-pressed={!muted}
+        aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+      >
+        {muted ? 'SOUND OFF' : 'SOUND ON'}
+      </button>
       <div className="matchhud px" aria-live="polite">
         <span>{text.home}</span>
         <span className="matchscore">{hud.score}</span>
@@ -131,7 +165,7 @@ export default function Match({ level, onExit }) {
       {hud.phase === 'goal' && <div className="matchbanner px">GOAL!</div>}
 
       {touch ? <TouchPad input={input.current} /> : (
-        <p className="matchhint px">ARROWS/WASD MOVE · X SHOOT/TACKLE · Z PASS/SWITCH · ESC MENU</p>
+        <p className="matchhint px">ARROWS/WASD MOVE · X SHOOT/TACKLE · Z PASS/SWITCH · M SOUND · ESC MENU</p>
       )}
 
       {hud.phase === 'fulltime' && (

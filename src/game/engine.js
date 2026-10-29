@@ -26,6 +26,7 @@ const SPEED = { user: 72, mate: 56, gk: 60, slide: 120 }
 const SHOT_POWER = 270
 const FRICTION = 1.3 // velocity decays by e^(-FRICTION * t)
 const REACH = 6
+const BOUNCE_SOUND_SPEED = 40 // slower rebounds off the boards stay silent
 const KEEPER_REACH = 11 // the visitor's keeper
 const TACKLE_RANGE = 8
 const STEAL_RATE = { mate: 1.1, user: 0.9 } // chance per second while in range
@@ -60,6 +61,8 @@ function nearest(s, ok) {
   return { index: best, d: bestD }
 }
 
+const emit = (s, type, extra) => s.events.push({ type, ...extra })
+
 const attackDir = (team) => (team === 0 ? 1 : -1)
 const ownLineX = (team) => (team === 0 ? FIELD.x0 : FIELD.x1)
 const targetLineX = (team) => (team === 0 ? FIELD.x1 : FIELD.x0)
@@ -80,7 +83,8 @@ export function createMatch(level = 'pro') {
         cooldown: 0, slide: 0, think: 0, hold: 0, run: 0 })
     })
   }
-  const s = { players, ball: null, score: [0, 0], time: 0, phase: 'kickoff', timer: 0,
+  // events: things that happened this step (kicks, goals, whistles) for the UI to react to, e.g. with sound.
+  const s = { players, ball: null, score: [0, 0], time: 0, phase: 'kickoff', timer: 0, events: [],
     controlled: KICKOFF_SLOT, switchLock: 0, kickoffTeam: 0, lastGoal: null,
     level, cfg: DIFFICULTIES[level] || DIFFICULTIES.pro }
   kickOff(s, 0)
@@ -114,12 +118,14 @@ export function step(s, dt, input) {
   if (s.phase === 'kickoff') {
     if (s.timer > 0) return
     s.phase = 'play'
+    emit(s, 'kickoff')
   }
 
   s.time += dt
   if (s.time >= MATCH_SECONDS) {
     s.time = MATCH_SECONDS
     s.phase = 'fulltime'
+    emit(s, 'fulltime')
     return
   }
 
@@ -195,6 +201,7 @@ function userControl(s, p, i, input) {
       if (len(mv.x, mv.y) > 0.1) p.face = norm(mv.x, mv.y)
       p.slide = 0.28
       p.cooldown = 0.5
+      emit(s, 'slide')
     }
   }
   if (input.pass) {
@@ -208,6 +215,7 @@ function userControl(s, p, i, input) {
     if (owner.role === 'gk') return
     owner.cooldown = 0.6
     gainBall(s, i)
+    emit(s, 'tackle')
   }
 }
 
@@ -322,6 +330,7 @@ function shoot(s, p, aim) {
   const spread = p.team === 1 ? s.cfg.shotSpread : 12
   const gy = H / 2 + clamp(aim, -1, 1) * (half - 4) + (Math.random() - 0.5) * spread
   kick(s, p, norm(gx - p.x, gy - p.y), SHOT_POWER)
+  emit(s, 'shot')
 }
 
 function pass(s, p, i) {
@@ -341,6 +350,7 @@ function pass(s, p, i) {
   const ty = best.y + best.vy * 0.3
   const d = len(tx - p.x, ty - p.y)
   kick(s, p, norm(tx - p.x, ty - p.y), Math.min(280, FRICTION * d + 60))
+  emit(s, 'pass')
 }
 
 function carryBall(s) {
@@ -372,11 +382,13 @@ function moveBall(s, dt) {
   }
   if (b.y < FIELD.y0 + 1 || b.y > FIELD.y1 - 1) {
     b.y = clamp(b.y, FIELD.y0 + 1, FIELD.y1 - 1)
+    if (Math.abs(b.vy) > BOUNCE_SOUND_SPEED) emit(s, 'bounce')
     b.vy *= -0.6
   }
   const inMouth = b.y > GOAL.y0 && b.y < GOAL.y1
   if (!inMouth && (b.x < FIELD.x0 || b.x > FIELD.x1)) {
     b.x = clamp(b.x, FIELD.x0, FIELD.x1)
+    if (Math.abs(b.vx) > BOUNCE_SOUND_SPEED) emit(s, 'bounce')
     b.vx *= -0.6
   }
 }
@@ -419,6 +431,7 @@ function tackles(s, dt) {
     if (Math.random() < rate * dt) {
       owner.cooldown = 0.6
       gainBall(s, j)
+      emit(s, 'tackle')
     }
   })
 }
@@ -432,6 +445,7 @@ function checkGoal(s) {
   if (scorer == null) return
   s.score[scorer]++
   s.lastGoal = scorer
+  emit(s, 'goal', { team: scorer })
   s.phase = 'goal'
   s.timer = 2
   s.kickoffTeam = 1 - scorer

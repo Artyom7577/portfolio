@@ -42,6 +42,13 @@
   color: var(--night); background: var(--chalk); border: 3px solid var(--night); box-shadow: 3px 3px 0 var(--night);
 }
 .matchquit:hover { background: var(--gold); }
+.matchsound {
+  position: absolute; z-index: 3; top: calc(54px + var(--safe-t)); left: calc(12px + var(--safe-l));
+  padding: 7px 8px; font-size: 7px; color: var(--chalk); background: var(--navy);
+  border: 2px solid var(--chalk); box-shadow: 2px 2px 0 var(--night);
+}
+.matchsound[aria-pressed="false"] { color: rgba(248, 248, 248, 0.55); }
+.matchsound:hover { color: var(--navy); background: var(--gold); }
 
 .matchhud {
   position: absolute; z-index: 2; top: calc(12px + var(--safe-t)); left: 50%; transform: translateX(-50%);
@@ -111,6 +118,7 @@
   .padbtns { right: calc(12px + var(--safe-r)); bottom: calc(24px + var(--safe-b)); }
   .matchhud { top: calc(8px + var(--safe-t)); padding: 6px 10px; }
   .matchquit { top: calc(8px + var(--safe-t)); padding: 8px 10px; }
+  .matchsound { top: calc(46px + var(--safe-t)); }
 }
 
 /* Portrait phones: pitch centered between the HUD and the controls. */
