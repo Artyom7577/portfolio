@@ -130,7 +130,6 @@ export default function Match({ level, onExit }) {
       {hud.phase === 'kickoff' && <div className="matchbanner px">KICK OFF</div>}
       {hud.phase === 'goal' && <div className="matchbanner px">GOAL!</div>}
 
-      <p className="rotatehint px">↻ ROTATE FOR A BIGGER PITCH</p>
       {touch ? <TouchPad input={input.current} /> : (
         <p className="matchhint px">ARROWS/WASD MOVE · X SHOOT/TACKLE · Z PASS/SWITCH · ESC MENU</p>
       )}
