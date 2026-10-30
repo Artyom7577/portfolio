@@ -28,10 +28,10 @@ export const career = [
     role: 'Software Engineer',
     location: 'Yerevan, Armenia',
     points: [
-      'Designed and built a multi-tenant identity & access management platform (Keycloak + PostgreSQL) from scratch: organizations, groups, roles, 2FA and product subscriptions with seats.',
+      'Designed and built a multi-tenant identity & access management platform (Keycloak + PostgreSQL) from scratch: organizations, groups, roles, 2FA and product subscriptions with seats — raising throughput from ~600 to 3,500+ requests per second and cutting memory use by up to 30%.',
       'Designed a crash-safe saga engine that keeps Keycloak and PostgreSQL consistent across multi-step operations, with automatic undo of completed steps and recovery after a crash.',
-      'Built a data versioning & matching engine that merges new dataset releases into a master dataset of millions of records, using a custom in-memory index.',
-      'Built a real-time sync service streaming data over gRPC into MongoDB and Elasticsearch, with parallel batching and resume after failure, deployed to multiple on-premise customer environments.',
+      'Built a data versioning & matching engine that merges new dataset releases into a master dataset of millions of records, using a custom in-memory index — cutting search latency by up to 70% where MongoDB indexes could not serve the matching pattern, together with parallel processing.',
+      'Built a new real-time sync service from scratch, streaming data over gRPC into MongoDB and Elasticsearch, with parallel batching and resume after failure, deployed to multiple on-premise customer environments — integrating customers\' data sync with the master dataset.',
       'Added reliable Kafka event publishing (transactional outbox), load-tested with k6, profiled with JFR, and deployed every service to Kubernetes with Helm.',
     ],
   },
@@ -117,6 +117,8 @@ export const highlights = [
     name: 'IDENTITY & ACCESS PLATFORM',
     tagline: 'KEYCLOAK + POSTGRESQL, KEPT CONSISTENT',
     stats: [
+      { value: '3,500+ RPS', label: 'Up from ~600 requests per second' },
+      { value: '-30% MEMORY', label: 'Memory use cut by up to 30%' },
       { value: 'CRASH-SAFE', label: 'Saga engine with automatic compensation' },
       { value: 'MULTI-TENANT', label: 'Organizations, groups, roles, 2FA' },
       { value: 'REUSED', label: 'Shared identity library used by other services' },
@@ -124,7 +126,7 @@ export const highlights = [
     points: [
       'Backend for users, organizations, groups, roles and product subscriptions with seats — built from an empty repository.',
       'Keycloak cannot join a database transaction, so I built a saga engine that persists every step and undoes completed ones when a later step fails.',
-      'Kafka events via the transactional outbox; load-tested with k6 and profiled with JFR.',
+      'Kafka events via the transactional outbox; load-tested with k6 and profiled with JFR, raising throughput from ~600 to 3,500+ requests per second and cutting memory use by up to 30%.',
     ],
     stack: ['Java 25', 'Quarkus', 'PostgreSQL', 'jOOQ', 'Keycloak', 'Kafka', 'Kubernetes'],
   },
@@ -132,13 +134,14 @@ export const highlights = [
     name: 'DATA VERSIONING ENGINE',
     tagline: 'MATCHING AT MILLION-RECORD SCALE',
     stats: [
+      { value: '-70% LATENCY', label: 'Search latency cut by up to 70%' },
       { value: 'MILLIONS', label: 'Records in the master dataset' },
       { value: 'CUSTOM INDEX', label: 'In-memory B+ tree I designed' },
       { value: '14', label: 'Field-merge strategies' },
     ],
     points: [
       'Merges each new release of a large dataset into a master dataset, matching records and keeping full version history.',
-      'A custom in-memory index narrows millions of candidates to a small set before the database is queried.',
+      'A custom in-memory index narrows millions of candidates to a small set before the database is queried — MongoDB indexes could not serve this matching pattern, so with parallel processing this cut search latency by up to 70%.',
       'Fully non-blocking pipeline with pluggable conflict-resolution rules.',
     ],
     stack: ['Java 25', 'Quarkus', 'Mutiny', 'MongoDB', 'Prometheus'],
@@ -152,6 +155,7 @@ export const highlights = [
       { value: 'ON-PREM', label: 'Multiple customer environments' },
     ],
     points: [
+      'A new service built from scratch that integrates customers\' data sync with the master dataset, supporting key business use cases.',
       'Streams changed records over compressed gRPC on a schedule and applies them to MongoDB and Elasticsearch.',
       'Checkpoints each time window so no data is lost or processed twice; one bad batch never stops the whole sync.',
       'GraalVM native builds, deployed with Helm.',
